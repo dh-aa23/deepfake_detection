@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Deepfake Detector</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    .container { max-width: 600px; margin: auto; }
+    video { width: 100%; margin-top: 1rem; }
+    input[type="file"] { margin-top: 1rem; }
+    button { margin-top: 1rem; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Deepfake Detection</h2>
+    <input type="file" id="videoInput" accept="video/*">
+    <video id="videoPreview" controls></video>
+    <button onclick="uploadVideo()">Run Detection</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const videoInput = document.getElementById('videoInput');
+    const videoPreview = document.getElementById('videoPreview');
+
+    videoInput.addEventListener('change', () => {
+      const file = videoInput.files[0];
+      if (file) {
+        videoPreview.src = URL.createObjectURL(file);
+      }
+    });
+
+    async function uploadVideo() {
+      const file = videoInput.files[0];
+      if (!file) {
+        alert("Please select a video file first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('video', file);
+
+      document.getElementById("status").textContent = "Uploading and processing...";
+
+      const response = await fetch('/detect', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      document.getElementById("status").textContent = "Result: " + result.message;
+    }
+  </script>
+</body>
+</html>
